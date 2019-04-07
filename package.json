@@ -4,7 +4,8 @@
   "author": "Jaid <jaid.jsx@gmail.com> (https://github.com/Jaid)",
   "dependencies": {
     "@babel/runtime": "^7.4.3",
-    "debug": "^4.1.1"
+    "debug": "^4.1.1",
+    "photoshop-generator-core": "^4.4.3"
   },
   "devDependencies": {
     "ajv": "^6.10.0",
@@ -18,7 +19,7 @@
     "jest": "^24.7.1",
     "opn-cli": "^4.0.0",
     "rimraf": "^2.6.3",
-    "webpack-config-jaid": "^3.17.1"
+    "webpack-config-jaid": "^3.19.0"
   },
   "scripts": {
     "clean": "rimraf dist/ test/**/dist/",
