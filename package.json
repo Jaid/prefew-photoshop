@@ -16,7 +16,7 @@
     "eslint": "^5.16.0",
     "eslint-config-jaid": "^1.12.0",
     "jest": "^24.7.1",
-    "opn-cli": "^4.0.0",
+    "opn-cli": "^4.1.0",
     "rimraf": "^2.6.3",
     "webpack-config-jaid": "^3.19.0"
   },
