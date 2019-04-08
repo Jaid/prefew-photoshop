@@ -1,6 +1,7 @@
 import getLayerByName from "lib/getLayerByName"
 import pixmapToPng from "lib/pixmapToPng"
 import socketIoClient from "socket.io-client"
+import arraybufferEqual from "arraybuffer-equal"
 
 const port = 40666
 
@@ -13,6 +14,7 @@ const main = async (generator, config) => {
   })
   socketClient.on("connect", async () => {
     let currentDocument
+    let previousBuffer
     console.log("Connected")
     const updatePrefewLayer = async documentId => {
       const document = await generator.getDocumentInfo(documentId, {
@@ -52,12 +54,21 @@ const main = async (generator, config) => {
           allowDither: true,
           maxDimension: 320,
         })
-        const png = pixmapToPng(pixmap)
+        if (previousBuffer && arraybufferEqual(previousBuffer, pixmap.pixels)) {
+          console.log("Nothing seems to have changed. Skipping.")
+          return
+        }
+        previousBuffer = pixmap.pixels
+        const pngBuffer = pixmapToPng(pixmap)
         const end = Number(new Date)
         console.log(`Rendered Pixmap in ${end - start} ms`)
         socketClient.emit("updateImage", {
-          png,
+          buffer: pngBuffer,
+          codec: "png",
           name: "photoshop",
+          forcedOptions: {
+            skipTrimming: true,
+          },
         })
       } catch (error) {
         console.error(error)
@@ -74,6 +85,10 @@ const main = async (generator, config) => {
       }
     })
     currentDocument = await updatePrefewLayer()
+    sendImageToPrefew()
+  })
+  socketClient.on("disconnect", async () => {
+    generator.removeAllListeners()
   })
 }
 
