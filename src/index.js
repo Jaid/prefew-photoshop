@@ -1,11 +1,10 @@
 import getLayerByName from "lib/getLayerByName"
 import pixmapToPng from "lib/pixmapToPng"
 import socketIoClient from "socket.io-client"
-import arraybufferEqual from "arraybuffer-equal"
 
 const port = 40666
 
-const main = async (generator, config) => {
+const main = async generator => {
   console.log(`Connecting to localhost:${port}`)
   const socketClient = socketIoClient(`ws://localhost:${port}`, {
     query: {
@@ -52,14 +51,18 @@ const main = async (generator, config) => {
         const pixmap = await generator.getPixmap(documentId, layerId, {
           clipToDocumentBounds: true,
           allowDither: true,
-          maxDimension: 320,
+          maxDimension: 480,
         })
-        if (previousBuffer && arraybufferEqual(previousBuffer, pixmap.pixels)) {
-          console.log("Nothing seems to have changed. Skipping.")
-          return
-        }
-        previousBuffer = pixmap.pixels
         const pngBuffer = pixmapToPng(pixmap)
+        try {
+          if (previousBuffer?.equals(pngBuffer)) {
+            console.log("Nothing seems to have changed. Skipping.")
+            return
+          }
+        } catch (error) {
+          debugger
+        }
+        previousBuffer = pngBuffer
         const end = Number(new Date)
         console.log(`Rendered Pixmap in ${end - start} ms`)
         socketClient.emit("updateImage", {
@@ -78,14 +81,16 @@ const main = async (generator, config) => {
     generator.onPhotoshopEvent("currentDocumentChanged", async () => {
       currentDocument = await updatePrefewLayer()
     })
-    generator.onPhotoshopEvent("documentChanged", () => {
+    generator.onPhotoshopEvent("imageChanged", () => {
       console.log("Document changed!")
       if (currentDocument.prefewLayer) {
         sendImageToPrefew()
       }
     })
     currentDocument = await updatePrefewLayer()
-    sendImageToPrefew()
+    if (currentDocument.prefewLayer) {
+      await sendImageToPrefew()
+    }
   })
   socketClient.on("disconnect", async () => {
     generator.removeAllListeners()
