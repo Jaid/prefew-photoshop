@@ -12,11 +12,11 @@ const main = async generator => {
     },
   })
   socketClient.on("connect", async () => {
-    let currentDocument
     let previousBuffer
     console.log("Connected")
-    const updatePrefewLayer = async documentId => {
-      const document = await generator.getDocumentInfo(documentId, {
+    const sendImageToPrefew = async () => {
+      const findLayerStart = Number(new Date)
+      const document = await generator.getDocumentInfo(undefined, {
         compInfo: false,
         imageInfo: false,
         layerInfo: true,
@@ -28,69 +28,39 @@ const main = async generator => {
         getDefaultLayerFX: false,
         getPathData: false,
       })
-      console.log(`Fetched layer info for document ${document.id}`)
       const prefewLayer = getLayerByName(document, "prefew")
-      if (prefewLayer) {
-        console.log(`Found layer "prefew" with id ${prefewLayer.id}`)
-        return {
-          id: document.id,
-          prefewLayer: prefewLayer.id,
-        }
-      } else {
-        return {
-          id: document.id,
-        }
+      if (!prefewLayer) {
+        console.log("Skipping. No layer named \"prefew\" found.")
+        return
       }
-    }
-    const sendImageToPrefew = async () => {
-      const documentId = currentDocument.id
-      const layerId = currentDocument.prefewLayer
-      console.log(`Render pixmap from layer ${layerId} of document ${documentId}`)
-      try {
-        const start = Number(new Date)
-        const pixmap = await generator.getPixmap(documentId, layerId, {
-          clipToDocumentBounds: true,
-          allowDither: true,
-          maxDimension: 480,
-        })
-        const pngBuffer = pixmapToPng(pixmap)
-        try {
-          if (previousBuffer?.equals(pngBuffer)) {
-            console.log("Nothing seems to have changed. Skipping.")
-            return
-          }
-        } catch (error) {
-          debugger
-        }
-        previousBuffer = pngBuffer
-        const end = Number(new Date)
-        console.log(`Rendered Pixmap in ${end - start} ms`)
-        socketClient.emit("updateImage", {
-          buffer: pngBuffer,
-          codec: "png",
-          name: "photoshop",
-          forcedOptions: {
-            skipTrimming: true,
-          },
-        })
-      } catch (error) {
-        console.error(error)
-        debugger
+      const findLayerEnd = Number(new Date)
+      console.log(`Found prefew layer with id ${prefewLayer.id} on document ${document.id} in ${findLayerEnd - findLayerStart} ms`)
+      const renderStart = Number(new Date)
+      const pixmap = await generator.getPixmap(document.id, prefewLayer.id, {
+        allowDither: true,
+        maxDimension: 480,
+      })
+      const pngBuffer = pixmapToPng(pixmap)
+      if (previousBuffer?.equals(pngBuffer)) {
+        console.log("Nothing seems to have changed. Skipping.")
+        return
       }
+      previousBuffer = pngBuffer
+      const renderEnd = Number(new Date)
+      console.log(`Rendered Pixmap in ${renderEnd - renderStart} ms`)
+      socketClient.emit("updateImage", {
+        buffer: pngBuffer,
+        codec: "png",
+        name: "photoshop",
+        forcedOptions: {
+          skipTrimming: true,
+        },
+      })
     }
-    generator.onPhotoshopEvent("currentDocumentChanged", async () => {
-      currentDocument = await updatePrefewLayer()
-    })
     generator.onPhotoshopEvent("imageChanged", () => {
-      console.log("Document changed!")
-      if (currentDocument.prefewLayer) {
-        sendImageToPrefew()
-      }
+      sendImageToPrefew()
     })
-    currentDocument = await updatePrefewLayer()
-    if (currentDocument.prefewLayer) {
-      await sendImageToPrefew()
-    }
+    await sendImageToPrefew()
   })
   socketClient.on("disconnect", async () => {
     generator.removeAllListeners()
