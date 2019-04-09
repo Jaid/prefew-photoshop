@@ -38,7 +38,7 @@ const main = async generator => {
       const renderStart = Number(new Date)
       const pixmap = await generator.getPixmap(document.id, prefewLayer.id, {
         allowDither: true,
-        maxDimension: 480,
+        maxDimension: 1080,
       })
       const pngBuffer = pixmapToPng(pixmap)
       if (previousBuffer?.equals(pngBuffer)) {
