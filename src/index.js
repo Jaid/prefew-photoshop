@@ -39,6 +39,7 @@ const main = async generator => {
       const pixmap = await generator.getPixmap(document.id, prefewLayer.id, {
         allowDither: true,
         maxDimension: 1080,
+        clipToDocumentBounds: true,
       })
       const pngBuffer = pixmapToPng(pixmap)
       if (previousBuffer?.equals(pngBuffer)) {
