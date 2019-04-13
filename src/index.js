@@ -41,7 +41,7 @@ const main = async generator => {
         maxDimension: 1080,
         clipToDocumentBounds: true,
       })
-      if (pixmap.pixels.length) {
+      if (!pixmap.pixels.length) {
         console.log("Skipping. No pixels in layer \"prefew\"")
         return
       }
