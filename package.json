@@ -19,7 +19,7 @@
     "jest": "^24.7.1",
     "opn-cli": "^4.1.0",
     "rimraf": "^2.6.3",
-    "webpack-config-jaid": "^3.19.0"
+    "webpack-config-jaid": "^3.20.0"
   },
   "scripts": {
     "clean": "rimraf dist/ test/**/dist/",
