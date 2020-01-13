@@ -29,5 +29,6 @@
     "build:dev": "webpack",
     "prepareActionJest": "npm run build:prod"
   },
-  "description": "Node module prefew-photoshop (:construction: Under construction, usage is not recommended!)"
+  "description": "Node module prefew-photoshop (:construction: Under construction, usage is not recommended!)",
+  "funding": "https://github.com/sponsors/jaid"
 }
