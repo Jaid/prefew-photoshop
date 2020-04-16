@@ -35,5 +35,7 @@
     "type": "git",
     "url": "https://github.com/jaid/prefew-photoshop"
   },
-  "name": "prefew-photoshop"
+  "name": "prefew-photoshop",
+  "homepage": "https://github.com/Jaid/prefew-photoshop",
+  "keywords": []
 }
