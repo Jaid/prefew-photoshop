@@ -28,7 +28,7 @@
     "build:dev": "webpack",
     "prepareActionJest": "npm run build:prod"
   },
-  "description": "Node module prefew-photoshop (:construction: Under construction, usage is not recommended!)",
+  "description": "Adobe Photoshop sync for prefew.",
   "funding": "https://github.com/sponsors/jaid",
   "repository": {
     "type": "git",
@@ -36,5 +36,15 @@
   },
   "name": "prefew-photoshop",
   "homepage": "https://github.com/Jaid/prefew-photoshop",
-  "keywords": []
+  "keywords": [
+    "adobe",
+    "adobe-photoshop",
+    "cli",
+    "image",
+    "image-processing",
+    "images",
+    "photoshop",
+    "prefew",
+    "sync"
+  ]
 }
